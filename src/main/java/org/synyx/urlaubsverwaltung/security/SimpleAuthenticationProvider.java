@@ -68,8 +68,10 @@ public class SimpleAuthenticationProvider implements AuthenticationProvider {
         }
 
         Collection<Role> permissions = person.getPermissions();
+        // the default granted authority prefix can be configured, but will at the moment
+        String grantedAuthorityPrefix = "ROLE_";
         Collection<GrantedAuthority> grantedAuthorities = permissions.stream().map((role) ->
-                    new SimpleGrantedAuthority(role.name())).collect(Collectors.toList());
+                    new SimpleGrantedAuthority(grantedAuthorityPrefix + role.name())).collect(Collectors.toList());
 
         String userPassword = person.getPassword();
 
