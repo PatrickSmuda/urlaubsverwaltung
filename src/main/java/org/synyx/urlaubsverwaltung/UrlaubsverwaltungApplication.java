@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.velocity.VelocityAutoConfiguration
 import org.springframework.context.annotation.ImportResource;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 
 /**
@@ -16,7 +17,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @SpringBootApplication(exclude = { VelocityAutoConfiguration.class })
 @EnableScheduling
-@ImportResource({ "classpath:spring-security.xml" })
+//@ImportResource({ "classpath:spring-security.xml" })
+@EnableWebSecurity
 public class UrlaubsverwaltungApplication { // NOSONAR - no private constructor needed
 
     /**

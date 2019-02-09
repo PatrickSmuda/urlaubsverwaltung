@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 
+import org.springframework.stereotype.Service;
 import org.synyx.urlaubsverwaltung.core.person.Person;
 import org.synyx.urlaubsverwaltung.core.person.PersonService;
 import org.synyx.urlaubsverwaltung.core.person.Role;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
  *
  * @author  Daniel Hammann - <hammann@synyx.de>
  */
+@Service
 public class SimpleAuthenticationProvider implements AuthenticationProvider {
 
     private static final Logger LOG = Logger.getLogger(SimpleAuthenticationProvider.class);
