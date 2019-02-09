@@ -26,7 +26,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .and().formLogin().loginPage("/login").permitAll().defaultSuccessUrl("/web/overview", false).failureForwardUrl("/login?login_error=1")
             .and()
             .logout().logoutUrl("/logout").logoutSuccessUrl("/login")
-            .and().csrf().disable();
+            .and()
+            .csrf().disable()
+            .headers().disable();
     }
 
     @Override
