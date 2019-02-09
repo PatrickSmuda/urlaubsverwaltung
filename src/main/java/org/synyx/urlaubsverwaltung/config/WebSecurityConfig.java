@@ -2,27 +2,40 @@ package org.synyx.urlaubsverwaltung.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.synyx.urlaubsverwaltung.security.SimpleAuthenticationProvider;
+
+import java.util.Optional;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final SimpleAuthenticationProvider authenticationProvider;
+    private final Environment environment;
 
-    @Autowired
-    public WebSecurityConfig(SimpleAuthenticationProvider simpleAuthenticationProvider) {
-        this.authenticationProvider = simpleAuthenticationProvider;
+
+    private final SimpleAuthenticationProvider simpleAuthenticationProvider;
+    private final UserDetailsContextMapper personContextMapper;
+
+    @Autowired(required = false)
+    public WebSecurityConfig(Environment environment,
+                             Optional<SimpleAuthenticationProvider> simpleAuthenticationProvider,
+                             Optional<UserDetailsContextMapper> personContextMapper) {
+
+        this.environment = environment;
+        this.simpleAuthenticationProvider = simpleAuthenticationProvider.orElse(null);
+        this.personContextMapper = personContextMapper.orElse(null);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        super.configure(http);
+        //super.configure(http);
 
         http.authorizeRequests()
-            //.mvcMatchers("/**").authenticated()
             // API
             .mvcMatchers("/api/sicknotes/**").hasAuthority("OFFICE")
             .mvcMatchers("/api/**").hasAuthority("USER")
@@ -39,6 +52,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .mvcMatchers("${management.context-path}/health").permitAll()
             .mvcMatchers("${management.context-path}/**").hasAnyAuthority("${management.security.roles}")
             // OPEN
+            .mvcMatchers("/lib/**").permitAll()
+            .anyRequest().authenticated()
             .and().formLogin().loginPage("/login").permitAll().defaultSuccessUrl("/web/overview", false).failureForwardUrl("/login?login_error=1")
             .and()
             .logout().logoutUrl("/logout").logoutSuccessUrl("/login")
@@ -49,9 +64,44 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
+    protected void configure(AuthenticationManagerBuilder authBuilder) throws Exception {
 
-        auth.authenticationProvider(authenticationProvider);
+        String auth = this.environment.getProperty("auth");
+
+        switch (auth) {
+            case "default":
+                authBuilder.authenticationProvider(this.simpleAuthenticationProvider);
+                break;
+            case "activeDirectory":
+                authBuilder.authenticationProvider(this.getActiveDirectoryLdapAuthenticationProvider());
+                break;
+            case "ldap":
+                configureLdap(authBuilder);
+                break;
+            default:
+                throw new IllegalStateException("unknow authetication provider: " + auth);
+        }
+    }
+
+    private void configureLdap(AuthenticationManagerBuilder authBuilder) throws Exception {
+        authBuilder.ldapAuthentication()
+                .contextSource()
+                    .url(this.environment.getProperty("uv.security.ldap.url") + "/" + this.environment.getProperty("uv.security.ldap.base"))
+                    .managerDn(this.environment.getProperty("uv.security.ldap.managerDn"))
+                    .managerPassword(this.environment.getProperty("uv.security.ldap.managerPassword"))
+            .and()
+                .userDetailsContextMapper(this.personContextMapper)
+                .userSearchBase(this.environment.getProperty("uv.security.ldap.userSearchBase"))
+                .userSearchFilter(this.environment.getProperty("uv.security.ldap.userSearchFilter"));
+    }
+
+
+    private ActiveDirectoryLdapAuthenticationProvider getActiveDirectoryLdapAuthenticationProvider() {
+        String domain = this.environment.getProperty("uv.security.activeDirectory.domain");
+        String url = this.environment.getProperty("uv.security.activeDirectory.url");
+        ActiveDirectoryLdapAuthenticationProvider result = new ActiveDirectoryLdapAuthenticationProvider(domain, url);
+        result.setUserDetailsContextMapper(this.personContextMapper);
+        return result;
     }
 
 }

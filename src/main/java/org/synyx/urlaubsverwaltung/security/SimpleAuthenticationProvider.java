@@ -2,6 +2,9 @@ package org.synyx.urlaubsverwaltung.security;
 
 import org.apache.log4j.Logger;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -28,12 +31,14 @@ import java.util.stream.Collectors;
  * @author  Daniel Hammann - <hammann@synyx.de>
  */
 @Service
+@ConditionalOnProperty(name = "auth", havingValue = "default")
 public class SimpleAuthenticationProvider implements AuthenticationProvider {
 
     private static final Logger LOG = Logger.getLogger(SimpleAuthenticationProvider.class);
 
     private final PersonService personService;
 
+    @Autowired
     public SimpleAuthenticationProvider(PersonService personService) {
 
         this.personService = personService;
