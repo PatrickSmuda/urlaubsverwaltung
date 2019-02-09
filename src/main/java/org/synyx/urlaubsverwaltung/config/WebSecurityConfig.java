@@ -79,7 +79,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 configureLdap(authBuilder);
                 break;
             default:
-                throw new IllegalStateException("unknow authetication provider: " + auth);
+                throw new IllegalStateException("unknown authentication provider: " + auth);
         }
     }
 
