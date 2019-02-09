@@ -33,21 +33,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        //super.configure(http);
 
+        //J-
         http.authorizeRequests()
             // API
-            .antMatchers("/api/sicknotes/**").hasAuthority("OFFICE")
-            .antMatchers("/api/**").hasAuthority("USER")
+            .antMatchers("/api/sicknotes/**").hasRole("OFFICE")
+            .antMatchers("/api/**").hasRole("USER")
             // WEB
-            .antMatchers("/web/overview").hasAuthority("USER")
-            .antMatchers("/web/application/**").hasAuthority("USER")
-            .antMatchers("/web/sicknote/**").hasAuthority("USER")
-            .antMatchers("/web/staff/**").hasAuthority("USER")
-            .antMatchers("/web/overtime/**").hasAuthority("USER")
-            .antMatchers("/web/department/**").hasAuthority("USER")
-            .antMatchers("/web/settings/**").hasAuthority("USER")
-            .antMatchers("/web/google-api-handshake/**").hasAuthority("USER")
+            .antMatchers("/web/overview").hasRole("USER")
+            .antMatchers("/web/application/**").hasRole("USER")
+            .antMatchers("/web/sicknote/**").hasRole("USER")
+            .antMatchers("/web/staff/**").hasRole("USER")
+            .antMatchers("/web/overtime/**").hasRole("USER")
+            .antMatchers("/web/department/**").hasRole("USER")
+            .antMatchers("/web/settings/**").hasRole("USER")
+            .antMatchers("/web/google-api-handshake/**").hasRole("USER")
             // sprint boot actuator
             .antMatchers("${management.context-path}/health").permitAll()
             .antMatchers("${management.context-path}/**").hasAnyAuthority("${management.security.roles}")
