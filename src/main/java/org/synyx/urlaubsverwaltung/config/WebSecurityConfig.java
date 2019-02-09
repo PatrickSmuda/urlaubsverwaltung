@@ -54,7 +54,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             // OPEN
             .mvcMatchers("/lib/**").permitAll()
             .anyRequest().authenticated()
-            .and().formLogin().loginPage("/login").permitAll().defaultSuccessUrl("/web/overview", false).failureForwardUrl("/login?login_error=1")
+            .and().formLogin().loginPage("/login").permitAll().failureUrl("/login?login_error=1")
             .and()
             .logout().logoutUrl("/logout").logoutSuccessUrl("/login")
             .and()
